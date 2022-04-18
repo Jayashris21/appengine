@@ -1,0 +1,3 @@
+queue:
+- name: my-push-queue
+  rate: 1.0/s
