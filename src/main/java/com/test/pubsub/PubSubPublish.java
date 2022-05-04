@@ -50,7 +50,8 @@ public class PubSubPublish extends HttpServlet {
 				          PubsubMessage.newBuilder().setData(ByteString.copyFromUtf8(payload)).build();
 				
 				publisher.publish(pubsubMessage);
-				resp.sendRedirect("/");
+				//resp.setStatus(200);
+				//resp.sendRedirect("/");
 
 				
 			}

@@ -37,7 +37,7 @@ public class PubSubPush extends HttpServlet {
 	    boolean checkRetry = true;
 	    if(checkRetry) {
 	    	log.info(decoded+" , Hello from Pub Sub");
-		    resp.setStatus(102);
+		    resp.setStatus(200);
 	    } else {
 	    	 resp.setStatus(503);
 	    }

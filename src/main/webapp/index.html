@@ -7,9 +7,36 @@
 
   <body>
     	<p>Welcome</p>
-		 <form action="/publish" method="post">
-    		<input type="text" name="payload">
-    		<input type="submit"> 
+    	<p> Add User</p>
+		 <form action="/user" method="post">
+    		Name: <input type="text" name="name"><br/>
+    		EmailAddress: <input type="text" name="email"><br/>
+    		Age: <input type="text" name="age"><br/>
+    		Address Line 1:<input type="text" name="address1"><br/>
+    		Address Line 2:<input type="text" name="address2"><br/>
+    		City: <input type="text" name="city"><br/>
+    		State: <input type="text" name="state"><br/>
+    		Zipcode: <input type="text" name="zipcode"><br/>
+    		Mobile No:<input type="text" name="mobile"><br/>
+    		<br/>
+    		<input type="submit" value="Save"> 
 		</form>
+		<br/><br/>
+		<p> Delete User</p>
+		<form action="/deleteUser" method="get">
+    		EmailAddress: <input type="text" name="email"><br/><br/>
+		<input type="submit" value="Delete"> 
+		</form>
+		<br/><br/>
+		<p> Get User</p>
+		<form action="/user" method="get">
+    		EmailAddress: <input type="text" name="email"><br/><br/>
+		<input type="submit" value="Get"> 
+		</form>
+		<br/><br/>
+		<form action="/eSearch" method="get"><br/><br/>
+			<input type="submit"> 
+		</form>
+		
   </body>
 </html>

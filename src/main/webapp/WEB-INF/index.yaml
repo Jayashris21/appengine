@@ -1,0 +1,7 @@
+indexes:
+- kind: User
+  properties:
+  - name: name
+    direction: asc
+  - name: email
+    direction: desc

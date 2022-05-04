@@ -1,0 +1,18 @@
+<!-- Indices written at Fri, 22 Apr 2022 13:10:32 IST -->
+
+<datastore-indexes autoGenerate="true">
+
+	<!-- Used 1 time in query history -->
+	<datastore-index kind="User" ancestor="false"
+		source="auto">
+		<property name="age" direction="asc" />
+		<property name="name" direction="desc" />
+	</datastore-index>
+
+	<datastore-index kind="User" ancestor="false"
+		source="manual">
+		<property name="name" direction="asc" />
+		<property name="email" direction="desc" />
+	</datastore-index>
+	
+</datastore-indexes>
