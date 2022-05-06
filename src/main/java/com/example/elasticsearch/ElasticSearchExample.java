@@ -8,77 +8,119 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 
-import com.example.objectify.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.ElasticsearchTransport;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
+@WebServlet(value = "/eSearch")
+public class ElasticSearchExample extends HttpServlet {
 
-@WebServlet(value="/eSearch")
-public class ElasticSearchExample  extends HttpServlet{
-	
 	public ElasticSearchExample() {
-		
+
 	}
-	
+
+	// To insert a new document into index
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
+		String result;
+		try {
+			result = sendPOST("http://localhost:9200/order/_doc/4");
+			System.out.println(result);
+		} catch (ParseException e) {
+			System.out.println(e);
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+
 	}
-	
-	
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
-		
-		System.out.println("one");
-		
-		RestClient restClient = RestClient.builder(
-		    new HttpHost("localhost", 9200)).build();
-		
-		//System.out.println("two");
-		ElasticsearchTransport transport = new RestClientTransport(
-		    restClient, new JacksonJsonpMapper());
 
-		//System.out.println("three");
-		ElasticsearchClient client = new ElasticsearchClient(transport);
+		ObjectMapper mapper = new ObjectMapper();
 		
-		//User user = new User("Jayashri", "jay123@gmail.com", "9876543210", 25);
+		boolean check = false;
 		
-		/*Map<String, Object> dataMap = new HashMap<String, Object>();
-		String id = UUID.randomUUID().toString();
-	    dataMap.put("userId", id);
-	    dataMap.put("name", "Jayashri");
-	    
-	    CreateIndexResponse createResponse = client.indices().create(
-	    	    new CreateIndexRequest.Builder()
-	    	        .index("my-index")
-	    	        .
-	    	        .build()
-	    	);
-		
-		System.out.println("four");*/
-		SearchResponse<User> search = client.search(s -> s
-	            .index("userdetails")
-	            .query(q -> q
-	                .term(t -> t
-	                    .field("name")
-	                    .value(v -> v.stringValue("Ayala Barker"))
-	                )),
-	            User.class);
-		
-		for (Hit<User> hit: search.hits().hits()) {
-            System.out.println(hit.source());
-        }
-		
-	
+		//Query Search - gets the document with 
+
+		if (check) {
+			try (CloseableHttpClient client = HttpClients.createDefault()) {
+
+				String JSON_STRING = "{\n" + "  \"query\" : {\n" + " \"match\" : {\n"
+						+ " \"user_name\" : \"jayashri\" \n" + "}\n" + "}\n" + "}";
+
+				StringEntity requestEntity = new StringEntity(JSON_STRING, ContentType.APPLICATION_JSON);
+
+				HttpPost request = new HttpPost("http://localhost:9200/order/_search");
+				request.setEntity(requestEntity);
+
+				CloseableHttpResponse response = client.execute(request);
+
+				HttpEntity entity = response.getEntity();
+				System.out.println(entity);
+				String result;
+				try {
+					result = EntityUtils.toString(entity); // student = new
+					System.out.println(result);
+				} catch (ParseException e) {
+					System.out.println(e);
+				} catch (IOException e) {
+					System.out.println(e);
+				}
+
+			}
+		} else {
+			
+			//Id search
+			try (CloseableHttpClient client = HttpClients.createDefault()) {
+
+				HttpGet request = new HttpGet("http://localhost:9200/order/_doc/1/_source");
+
+				Order response = client.execute(request,
+						httpResponse -> mapper.readValue(httpResponse.getEntity().getContent(), Order.class));
+
+				System.out.println(response.toString());
+			}
+		}
+
+		resp.sendRedirect("/");
 	}
-	
+
+	private static String sendPOST(String url) throws IOException, ParseException {
+
+		String result = "";
+		HttpPost post = new HttpPost(url);
+		post.addHeader("content-type", "application/json");
+
+		StringBuilder json = new StringBuilder();
+		json.append("{");
+		json.append("\"order_id\":\"4\",");
+		json.append("\"orderitem_id\":\"1004\",");
+		json.append("\"product\":\"Laptop Charger\",");
+		json.append("\"category\":\"Electronic Devices\",");
+		json.append("\"user_name\":\"Prabhu Raj\",");
+		json.append("\"existing_user\":\"false\"");
+		json.append("}");
+
+		// send a JSON data
+		post.setEntity(new StringEntity(json.toString()));
+
+		try (CloseableHttpClient httpClient = HttpClients.createDefault();
+				CloseableHttpResponse response = httpClient.execute(post)) {
+
+			result = EntityUtils.toString(response.getEntity());
+		}
+
+		return result;
+	}
 
 }
